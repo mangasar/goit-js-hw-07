@@ -1,30 +1,54 @@
 import { galleryItems } from './gallery-items.js';
 // Change code below this line
 
-console.log(galleryItems);
-
-const body = document.querySelector('body');
-const galleryContainer = document.querySelector('.gallery');
-
-
-
-function createGalleryMarkup (image) {
-return image.map(({preview,original,description}) => {
-return `<li class="gallery__item">
-<a class="gallery__link" href= "${original}">
- <img
-   class="gallery__image"
-   src="${preview}"
-   data-source="${original}"
-   alt="${description}"
- />
-</a>
+const galleryItemsEl = document.querySelector(".gallery");
+const addGalleryItems = galleryItems
+  .map(
+    ({ preview, original, description }) =>
+      `<li class="gallery__item">
+  <a class="gallery__link" href="${original}">
+    <img
+      class="gallery__image"
+      src="${preview}"
+      data-source="${original}"
+      alt="${description}"
+    />
+  </a>
 </li>`
-}).join('')
+  )
+  .join("");
+galleryItemsEl.insertAdjacentHTML("afterbegin", addGalleryItems);
+
+// ДИЛЕГИРОВАНИЕ // БИБЛИОТЕКА basiclightbox
+galleryItemsEl.addEventListener("click", onGalleryItemClick);
+function onGalleryItemClick(evt) {
+  evt.preventDefault();
+  const imgSrc = evt.target.parentNode.href;
+  const imgAlt = evt.target.alt;
+
+  if (evt.target.nodeName !== "IMG") {
+    return;
+  }
+
+  const instance = basicLightbox.create(
+    `<img src="${imgSrc}" alt="${imgAlt}">`,
+
+    {
+      onShow: (instance) => {
+        document.addEventListener("keydown", closeModal);
+      },
+
+      onClose: (instance) => {
+        document.removeEventListener("keydown", closeModal);
+      },
+    }
+  );
+
+  function closeModal(evt) {
+    if (evt.code === "Escape") {
+      instance.close();
+    }
+  }
+
+  instance.show();
 }
-galleryContainer.insertAdjacentHTML("beforebegin" , createGalleryMarkup(galleryItems))
-
-
-
-
-
